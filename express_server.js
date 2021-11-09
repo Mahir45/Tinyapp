@@ -4,7 +4,7 @@ const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 
 function generateRandomString()  {
-  return Math.random().toString(36).slice(2);
+  return Math.random().toString(36).slice(6);
 }
 
 
@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Tinyapp listening on port ${PORT}!`);
 });
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -53,6 +53,12 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   res.redirect(longURL);
+});
+app.post("/urls/:shortURL/delete", (req, res) => {
+console.log(req.params.shortUrl)
+  // delete urlDatabase[req.params.shortURL];
+// res.redirect("/urls")
+
 });
 
 
