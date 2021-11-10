@@ -3,7 +3,6 @@ const app = express();
 const PORT = 8080; // default port 8080
 app.set("view engine", "ejs");
 const cookies = require("cookie-parser");
-
 app.use(cookies());
 
 function generateRandomString()  {
@@ -34,6 +33,9 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+app.get("/register", (req, res) => {
+res.render("urls_register")
+})
 
 app.get("/urls", (req, res) => {
   const templateVars = {
@@ -90,4 +92,7 @@ app.post("/logout", (req, res) => {
   res.clearCookie('userName') // clears the cookies that was stored 
   res.redirect("/urls") // redirects to the original url page
 });
+app.post("/register" , (req, res) =>{
+
+})
 
