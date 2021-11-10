@@ -4,6 +4,43 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+    <div>   
+    <% if(typeof username !== "undefined"){ %>
+      <h5>
+        <%= username %>
+        <form action="/logout" method="POST">
+          <input type="submit" value="LOGOUT"/>
+     </form>
+      </h5>
+   <% } else{ %>
+      <h5>
+        <form action="/login" method="post">
+          <div class="imgcontainer">
+          </div>
+          
+          <div class="container">
+            <label for="username"><b>USERNAME</b></label>
+            <input type="text" placeholder="Enter Username" name="username" required>
+        
+            <label for="password"><b>PASSWORD</b></label>
+            <input type="password" placeholder="Enter Password" name="password" required>
+        
+            <button type="submit">LOGIN</button>
+            <label>
+              <input type="checkbox" checked="checked" name="remember"> Remember me
+            </label>
+          </div>
+          </form>
+          <centre>             
+          <div class="container" style="background-color:#17A400">
+            <button type="button" class="cancelbtn">Cancel</button>
+            <span class="psw">Forgot <a href="#">password?</a></span>
+          </centre>
+          </div>
+        </form>
+      </h5>
+    <% } %>
+  </div>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
@@ -12,3 +49,4 @@
     </div>
   </nav>
 </header>
+
