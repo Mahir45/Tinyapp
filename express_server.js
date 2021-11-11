@@ -159,7 +159,7 @@ app.post("/register" , (req, res) =>{
   if (!validEmail) {
     return res.status(400).send("Please enter a valid username and password")
   }
-  const checkEmail = emailChecker(checkEmail) 
+  const checkEmail = emailChecker(email) 
   if (checkEmail) {
     return res.status(400).send("Email already exists, Please enter a new email")
   }
