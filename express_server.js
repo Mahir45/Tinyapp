@@ -8,6 +8,13 @@ app.use(cookies());
 function generateRandomString()  {
   return Math.random().toString(36).slice(6);
 }
+const emptyarray = (email, password) => {
+  if (email === "" && password === "") {
+    return false
+  }
+    return true
+
+};
 
 const users = { 
   "userRandomID": {
@@ -110,7 +117,7 @@ const authenticateUser = function (email, password) {
       return users[key]
     }
   }
-  return null
+  return res.status(400).send("User already exists")
 } 
 
 app.post("/login", (req, res) => {
@@ -126,7 +133,7 @@ app.post("/login", (req, res) => {
         res.redirect("/urls");
         //user was authenticate and everything looks ok.y){
     } else {
-        res.status(403).send("Invalid email or password")
+        res.status(400).send("Invalid email or password")
     }  
 
 });
@@ -140,13 +147,20 @@ app.post("/register" , (req, res) =>{
   const id = generateRandomString()  
   const email = req.body.email
   const password = req.body.password 
+  const validEmail = emptyarray(email, password)
+  if (!validEmail) {
+    return res.status(400).send("User already exists")
+  }
   users[id] = {
     id: id,
     email: email,
     password: password
   }; 
+  
   res.cookie("user_id", id)
   //console.log("TEST",users);
   res.redirect("/urls");
 });
+
+
 
