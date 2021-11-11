@@ -5,12 +5,12 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div>   
-    <% if(typeof username !== "undefined"){ %>
+    <% if(user){ %>
       <h5>
-        <%= username %>
+        <%= user.email %>
         <form action="/logout" method="POST">
           <input type="submit" value="LOGOUT"/>
-     </form>
+        </form>
       </h5>
    <% } else{ %>
       <h5>
@@ -20,7 +20,7 @@
           
           <div class="container">
             <label for="username"><b>USERNAME</b></label>
-            <input type="text" placeholder="Enter Username" name="username" required>
+            <input type="text" placeholder="Enter Username" name="email" required>
         
             <label for="password"><b>PASSWORD</b></label>
             <input type="password" placeholder="Enter Password" name="password" required>
@@ -30,14 +30,14 @@
               <input type="checkbox" checked="checked" name="remember"> Remember me
             </label>
           </div>
-          </form>
+        </form>
           <centre>             
           <div class="container" style="background-color:#17A400">
             <button type="button" class="cancelbtn">Cancel</button>
             <span class="psw">Forgot <a href="#">password?</a></span>
           </centre>
           </div>
-        </form>
+      
       </h5>
     <% } %>
   </div>

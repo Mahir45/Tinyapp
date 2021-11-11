@@ -9,15 +9,25 @@ function generateRandomString()  {
   return Math.random().toString(36).slice(6);
 }
 
-
-
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+// const bodyParser = require("body-parser");
+app.use(express.urlencoded({extended: true}));
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -26,6 +36,7 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Tinyapp listening on port ${PORT}!`);
 });
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -34,20 +45,31 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 app.get("/register", (req, res) => {
-res.render("urls_register")
+  res.render("urls_register")
 })
 
 app.get("/urls", (req, res) => {
+  console.log(req.cookies)
+  id = req.cookies["user_id"]
+  console.log("user",users[id])
   const templateVars = {
+    user: users[id],
     username: req.cookies["userName"],
     urls: urlDatabase // ... any other vars
   };
   res.render("urls_index", templateVars);
 });
+
 app.get("/urls/new", (req, res) => {
+  console.log(req.cookies)
+  const id = req.cookies["user_id"]
+  
+  const user = users[id]
   const templateVars = {
-    username: req.cookies["userName"],
+    user
   };
+  
+
   res.render("urls_new", templateVars);
 
 });
@@ -68,31 +90,63 @@ app.get("/u/:shortURL", (req, res) => {
 });
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
-console.log(req.params.shortURL)
-res.redirect("/urls")
+  console.log(req.params.shortURL)
+  res.redirect("/urls")
 });
 
 app.post("/urls/:shortURL/", (req, res) => {
 //  console.log(req.params.shortURL)
 //  console.log(req.body.longURL)
- const longURL = req.body.longURL
- const shortURL = req.params.shortURL
- urlDatabase[shortURL] = longURL
- console.log(req.body.longURL)
-res.redirect("/urls")
+  const longURL = req.body.longURL
+  const shortURL = req.params.shortURL
+  urlDatabase[shortURL] = longURL
+  console.log(req.body.longURL)
+  res.redirect("/urls")
 });
+
+const authenticateUser = function (email, password) {
+  for (const key in users){
+    if ((email === users[key].email) && (password === users[key].password)){
+      return users[key]
+    }
+  }
+  return null
+} 
+
 app.post("/login", (req, res) => {
-const userName = req.body.username
-const password = req.body.password
- // set a cookie here
-res.cookie('userName', userName)
-res.redirect("/urls")
+    const email = req.body.email;
+    const password = req.body.password;
+    console.log("TESTING",email, password);
+    // loop through users obj and check to see if the email and password exist 
+    // if they do set req.cookies.id also set "user"{email:useremail}
+    const result = authenticateUser(email, password)
+    console.log("TESTING RESULT",result);
+    if(result){
+        res.cookie("user_id", result.id)
+        res.redirect("/urls");
+        //user was authenticate and everything looks ok.y){
+    } else {
+        res.status(403).send("Invalid email or password")
+    }  
+
 });
 app.post("/logout", (req, res) => {
-  res.clearCookie('userName') // clears the cookies that was stored 
+  //console.log("We are htting this route");
+  res.clearCookie("user_id") // clears the cookies that was stored 
   res.redirect("/urls") // redirects to the original url page
 });
-app.post("/register" , (req, res) =>{
 
-})
+app.post("/register" , (req, res) =>{
+  const id = generateRandomString()  
+  const email = req.body.email
+  const password = req.body.password 
+  users[id] = {
+    id: id,
+    email: email,
+    password: password
+  }; 
+  res.cookie("user_id", id)
+  //console.log("TEST",users);
+  res.redirect("/urls");
+});
 
