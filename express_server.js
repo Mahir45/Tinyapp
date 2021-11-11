@@ -15,6 +15,14 @@ const emptyarray = (email, password) => {
     return true
 
 };
+const emailChecker = (email) => {
+  for (let key in users)
+  if (email === users[key].email) {
+    return users[key]
+  }
+  return 
+
+}
 
 const users = { 
   "userRandomID": {
@@ -149,7 +157,11 @@ app.post("/register" , (req, res) =>{
   const password = req.body.password 
   const validEmail = emptyarray(email, password)
   if (!validEmail) {
-    return res.status(400).send("User already exists")
+    return res.status(400).send("Please enter a valid username and password")
+  }
+  const checkEmail = emailChecker(checkEmail) 
+  if (checkEmail) {
+    return res.status(400).send("Email already exists, Please enter a new email")
   }
   users[id] = {
     id: id,
