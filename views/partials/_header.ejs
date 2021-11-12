@@ -6,26 +6,9 @@
     </button>
     <div>   
     <% if(user){ %>
-      <h5>
-        <%= user.email %>
-        <form action="/logout" method="POST">
-          <input type="submit" value="LOGOUT"/>
-        </form>
-      </h5>
+     
    <% } else{ %>
       <h5>
-          <div class="imgcontainer">
-          </div>
-          
-          <div class="container">
- 
-            
-       
-          </div>
-        
-          
-          </div>
-      
       </h5>
     <% } %>
   </div>
@@ -35,8 +18,16 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <a href="/login" class="mr-4 text-white" > Login</a>  
-    <a href="/register" class="text-white" > Register</a> 
+    <% if(!user){ %>
+    <p><a href="/login" class="mr-4 text-white" > Login</a>  
+      <a href="/register" class="text-white" > Register</a> 
+      <% } else{ %>
+        <p>
+          <%= user.email %>
+          <form action="/logout" method="POST">
+            <input type="submit" value="LOGOUT"/>
+          </form>
+        </p>
+        <% } %>
   </nav>
 </header>
-
