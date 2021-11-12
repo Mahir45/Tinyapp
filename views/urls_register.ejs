@@ -1,36 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-<h1> New registration form</h1>
-<!-- Bootstrap CSS -->
-
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-</head>
-<body>
-<form action = "/register" method = "POST">
+<%- include('partials/_header') %> 
+<div>
+  <form action = "/register" method = "POST">
   
-	<table>
-		<tr>
-			<td>
-				Email Address:
-			</td>
-
-			<td>
-				<input type="email" name="email" placeholder="email">
-			</td>
-		</tr>
-<tr>
-<td>
-				Password:
-			</td>
-
-			<td>
-				<input type="password" name="password" placeholder="password">
-        <button type="submit" class="btn btn-success">SUMBIT</button>
-      </td>
- 	</tr>
-	</table>
-</form> 
+    <table>
+      <tr>
+        <td>
+          Email Address:
+        </td>
+  
+        <td>
+          <input type="email" name="email" placeholder="email">
+        </td>
+      </tr>
+  <tr>
+  <td>
+          Password:
+        </td>
+  
+        <td>
+          <input type="password" name="password" placeholder="password">
+          <button type="submit" class="btn btn-success">SUMBIT</button>
+        </td>
+     </tr>
+    </table>
+  </form> 
+</div> 
 </body>
 </html>

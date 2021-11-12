@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 8080; // default port 8080
 const morgan = require('morgan')
@@ -28,7 +29,19 @@ const emailChecker = (email, users) => {
   return undefined
 
 };
+const urlsForUser = (id, database) => {
+  const obj = {};
+  for (const shortUrl in database) {
+    if (id === database[shortUrl].userID) {
+      obj[shortUrl] = database[shortUrl];
+    }
+  }
+  // console.log("obj", obj);
+  // console.log(urlDatabase);
+  return obj;
+};
 // const loginEmailCheck = (email) => {
+  // const obj = short
 //   for (const user in users) {
 //     //console.log(user);
 //     if (email === users[user].email) {
@@ -37,6 +50,16 @@ const emailChecker = (email, users) => {
 //   }
 //   return null;
 // };
+const urlsForUserID = function (id) {
+  let userURL = {}
+  let keysOfUrldatabase = Object.keys(urlDatabase)  
+  for (let i in keysOfUrldatabase) {
+    if (id === urlDatabase[keysOfUrldatabase[i]].userID) {
+       userURL[keysOfUrldatabase[i]] = urlDatabase[keysOfUrldatabase[i]]
+       }
+    
+  } return userURL
+}
 
 const authenticateUser = function(users, email, password) {
   let userFound = emailChecker(users, email)
@@ -50,6 +73,7 @@ const authenticateUser = function(users, email, password) {
   //     return users;
   //   }
   // }
+ urlDatabase.b6UTxQ.userid
 }
 const users = {
   "userRandomID": {
@@ -67,7 +91,7 @@ const users = {
 const urlDatabase = {
   b6UTxQ: {
       longURL: "https://www.tsn.ca",
-      userID: "aJ48lW"
+      userID: "userRandomID"
   },
   i3BoGr: {
       longURL: "https://www.google.ca",
@@ -95,18 +119,29 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 app.get("/register", (req, res) => {
-  res.render("urls_register");
+  templateVars = {
+    user: null
+  }
+  res.render("urls_register", templateVars);
 });
 
 app.get("/urls", (req, res) => {
   // console.log("/urls",req.cookies);
-  console.log("new urldatabase", urlDatabase)
-  id = req.cookies["user_id"];
-  console.log("user",users[id]);
+  const id = req.cookies["user_id"];
+  console.log("cookies" ,id)
+  if (!id) {
+   res.status(401).send("Please Login")
+  
+
+  }
+  
+const userURLS = urlsForUserID(id)
+  // console.log("user",users[id]);
+  // const user = req.cookies[""]
   const templateVars = {
     user: users[id],
     username: req.cookies["userName"],
-    urls: urlDatabase // ... any other vars
+    urls: userURLS  // ... any other vars
   };
   res.render("urls_index", templateVars);
 });
@@ -165,6 +200,7 @@ app.post("/urls", (req, res) => {
   res.redirect("/urls/");
 });
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const id = req.cookies["user_id"];
   if (!id) {
     return res.status(401).send("Please Log In")
   }
@@ -179,6 +215,7 @@ app.post("/urls/:shortURL/", (req, res) => {
   }
   const longURL = req.body.longURL;
   const shortUrl = req.params.shortURL;
+
   urlDatabase[shortUrl] = {longURL: longURL, userID:id};
   console.log(req.body.longURL);
   res.redirect("/urls");
@@ -203,7 +240,8 @@ app.post("/login", (req, res) => {
   if(!user) {
     return res.status(400).send("Invalid email")
   }
-  if (user.password !== password) {
+  if (!bcrypt.compareSync(password, users[user.id].password))  
+  {
     return res.status(400).send("Invalid Password")
   }
   res.cookie("user_id", user.id)
@@ -213,13 +251,16 @@ app.post("/login", (req, res) => {
 });
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect("/urls"); 
+  res.redirect("/login"); 
 });
 
 app.post("/register" , (req, res) =>{
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+
+  // let password =  bcrypt.hashSync(password, 10);
+  console.log("hashed", password)
   const validEmail = emptyInput(email, password);
   if (!validEmail) {
     return res.status(400).send("Please enter a valid username and password");
@@ -232,9 +273,9 @@ app.post("/register" , (req, res) =>{
   users[id] = {
     id: id,
     email: email,
-    password: password
+    password: bcrypt.hashSync(password, 10)
   };
-  
+
   res.cookie("user_id", id);
   res.redirect("/urls");
 });

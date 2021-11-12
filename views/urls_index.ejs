@@ -1,19 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-</head>
-<body>
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <h3>REEZ URLS</h3>
+    <% if(user){ %>
      <%= typeof username !== "undefined" ? username: '' %>
     
     <table class="table">
@@ -44,10 +33,15 @@
               <form method="GET" action="/urls/<%= url %>">
                 <input type="submit" value="EDIT" class="btn btn-success" />
               </form>
+              <% } %> 
             </td>
           </tr>
-          <% } %>
-      </tbody>
+          <% } else { %>
+            <h3>
+          You must be Logged In to edit and add URLS   
+        </h3> 
+        <% } %>        
+        </tbody>
     </table>
   </main>
   <!-- Bootstrap JS -->
