@@ -1,80 +1,37 @@
+// require //
 const express = require("express");
+
 const bcrypt = require('bcryptjs');
+
 const app = express();
+
 const PORT = 8080; // default port 8080
-const morgan = require('morgan')
+
+const morgan = require('morgan');
+
 app.set("view engine", "ejs");
-const cookies = require("cookie-parser");
-app.use(cookies());
-app.use(morgan('dev'))
 
-function generateRandomString()  {
-  return Math.random().toString(36).slice(6);
-}
-const emptyInput = (email, password) => {
-  if (!email || !password) {
-    return false 
-  }
-  return true; 
+const cookieSession = require("cookie-session");
 
-};
-const emailChecker = (email, users) => {
-  for (let key in users) {
+const { emailChecker, generateRandomString , urlsForUserID, emptyInput, urlDatabase} = require("./helper");
 
-    console.log("user", users[key])
-      if (email === users[key].email) {
-        return users[key];
-  }
-    }
-  return undefined
+app.use(morgan('dev'));
 
-};
-const urlsForUser = (id, database) => {
-  const obj = {};
-  for (const shortUrl in database) {
-    if (id === database[shortUrl].userID) {
-      obj[shortUrl] = database[shortUrl];
-    }
-  }
-  // console.log("obj", obj);
-  // console.log(urlDatabase);
-  return obj;
-};
-// const loginEmailCheck = (email) => {
-  // const obj = short
-//   for (const user in users) {
-//     //console.log(user);
-//     if (email === users[user].email) {
-//       return users[user];
-//     }
-//   }
-//   return null;
-// };
-const urlsForUserID = function (id) {
-  let userURL = {}
-  let keysOfUrldatabase = Object.keys(urlDatabase)  
-  for (let i in keysOfUrldatabase) {
-    if (id === urlDatabase[keysOfUrldatabase[i]].userID) {
-       userURL[keysOfUrldatabase[i]] = urlDatabase[keysOfUrldatabase[i]]
-       }
-    
-  } return userURL
-}
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["anything"],
 
-const authenticateUser = function(users, email, password) {
-  let userFound = emailChecker(users, email)
-  console.log("userfound", userFound)
-  if (userFound){
-    return userFound
-  } 
-  return false
-  // for (const key in users) {
-  //   if ((email === users[key].email) && (password === users[key].password)) {
-  //     return users;
-  //   }
-  // }
- urlDatabase.b6UTxQ.userid
-}
+    // Cookie Options
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  })
+);
+// HELPER FUNCTIONS //
+
+
+
+// DATABASES //
+
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -88,28 +45,29 @@ const users = {
   }
 };
 
-const urlDatabase = {
-  b6UTxQ: {
-      longURL: "https://www.tsn.ca",
-      userID: "userRandomID"
-  },
-  i3BoGr: {
-      longURL: "https://www.google.ca",
-      userID: "aJ48lW"
-  }
-};
-// const bodyParser = require("body-parser");
+// const urlDatabase = {
+//   b6UTxQ: {
+//       longURL: "https://www.tsn.ca",
+//       userID: "userRandomID"
+//   },
+//   i3BoGr: {
+//       longURL: "https://www.google.ca",
+//       userID: "aJ48lW"
+//   }
+// };
+
+
+
+
 app.use(express.urlencoded({extended: true}));
 
-// app.get
+// GET ROUTES //
 
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// app.listen(PORT, () => {
-//   console.log(`Tinyapp listening on port ${PORT}!`);
-// });
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -118,40 +76,38 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
 app.get("/register", (req, res) => {
-  templateVars = {
+  let templateVars = {
     user: null
-  }
+  };
   res.render("urls_register", templateVars);
 });
 
 app.get("/urls", (req, res) => {
   // console.log("/urls",req.cookies);
-  const id = req.cookies["user_id"];
-  console.log("cookies" ,id)
+  const id = req.session.user_id;
   if (!id) {
-   res.status(401).send("Please Login")
-  
-
+    res.status(401).send("Please Login");
   }
-  
-const userURLS = urlsForUserID(id)
+  const userURLS = urlsForUserID(id);
   // console.log("user",users[id]);
   // const user = req.cookies[""]
   const templateVars = {
     user: users[id],
-    username: req.cookies["userName"],
+    username: req.session["userName"],
     urls: userURLS  // ... any other vars
   };
   res.render("urls_index", templateVars);
 });
 
+
 app.get("/urls/new", (req, res) => {
-  console.log(req.cookies);
-  const id = req.cookies["user_id"];
- if (!id) {
-   return res.redirect("/login")
- }
+  
+  const id = req.session.user_id;
+  if (!id) {
+    return res.redirect("/login");
+  }
   const user = users[id];
   const templateVars = {
     user
@@ -160,49 +116,57 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 
 });
+
+
 app.get("/urls/:shortURL", (req, res) => {
-  const id = req.cookies["user_id"];
- if (!id) {
-   return res.redirect("/login")
- }
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL };
+  const id = req.session.user_id;
+  const user = users[id];
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  if (!id) {
+    return res.redirect("/login");
+  }
+  const templateVars = { shortURL, longURL, user};
   res.render("urls_show", templateVars);
 });
+
+
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   if (!longURL) {
-    return res.status(404).send("URL does not exist")
+    return res.status(404).send("URL does not exist");
   }
   res.redirect(longURL);
 });
 
 app.get("/login", (req, res) => {
-  const id = req.cookies["user_id"];
-  let user = null
- if (id) {
-   user = users[id]
- }
- const templateVars = {user:user}
+  const id = req.session.user_id;
+  let user = null;
+  if (id) {
+    user = users[id];
+  }
+  const templateVars = {user:user};
   res.render("urls_login", templateVars);
 });
 
-// app.post 
+// app.post
 
 app.post("/urls", (req, res) => {
   console.log(req.body);
-  const id = req.cookies["user_id"];
- if (!id) {
-   return res.status(401).send("Please Log In")
- }
+  const id = req.session.user_id;
+  if (!id) {
+    return res.status(401).send("Please Log In");
+  }
   const shortUrl = generateRandomString();  // creating a new shortUrl using the new function
   const longURL = req.body.longURL; // the new longUrl is coming from the form submission
   urlDatabase[shortUrl] = {longURL: longURL, userID:id}; // add new shortUrl to the urlDatabase object
   res.redirect("/urls/");
 });
+
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   if (!id) {
-    return res.status(401).send("Please Log In")
+    return res.status(401).send("Please Log In");
   }
   delete urlDatabase[req.params.shortURL];
   console.log(req.params.shortURL);
@@ -210,8 +174,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/", (req, res) => {
+  const id = req.session.user_id;
   if (!id) {
-    return res.status(401).send("Please Log In")
+    return res.status(401).send("Please Log In");
   }
   const longURL = req.body.longURL;
   const shortUrl = req.params.shortURL;
@@ -222,37 +187,36 @@ app.post("/urls/:shortURL/", (req, res) => {
 });
 
   
-  
-
-
 app.post("/login", (req, res) => {
   const email = req.body.email;
-    const password = req.body.password;
-  const filledOutInput = emptyInput(email, password)
-  console.log(req.body)
-  console.log("emptyarray",filledOutInput)
-  if(!filledOutInput) {
-    return res.send("Invalid input") 
+  const password = req.body.password;
+  const filledOutInput = emptyInput(email, password);
+  console.log(req.body);
+  console.log("emptyarray",filledOutInput);
+  if (!filledOutInput) {
+    return res.send("Invalid input");
   }
 
   const user = emailChecker(email, users);
-  console.log(user)
-  if(!user) {
-    return res.status(400).send("Invalid email")
+  console.log(user);
+  if (!user) {
+    return res.status(400).send("Invalid email");
   }
-  if (!bcrypt.compareSync(password, users[user.id].password))  
-  {
-    return res.status(400).send("Invalid Password")
+  if (!bcrypt.compareSync(password, users[user.id].password)) {
+    return res.status(400).send("Invalid Password");
   }
-  res.cookie("user_id", user.id)
+  req.session.user_id =  user.id;
   res.redirect('/urls');
 
  
 });
+
+
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
-  res.redirect("/login"); 
+  req.session.user_id = null;
+  res.redirect("/login");
 });
+
 
 app.post("/register" , (req, res) =>{
   const id = generateRandomString();
@@ -260,13 +224,13 @@ app.post("/register" , (req, res) =>{
   const password = req.body.password;
 
   // let password =  bcrypt.hashSync(password, 10);
-  console.log("hashed", password)
+  console.log("hashed", password);
   const validEmail = emptyInput(email, password);
   if (!validEmail) {
     return res.status(400).send("Please enter a valid username and password");
   }
   const checkEmail = emailChecker(email, users);
-  console.log(email)
+  console.log(email);
   if (checkEmail) {
     return res.status(400).send("Email already exists, Please enter a new email");
   }
@@ -276,15 +240,18 @@ app.post("/register" , (req, res) =>{
     password: bcrypt.hashSync(password, 10)
   };
 
-  res.cookie("user_id", id);
+  req.session.user_id =  id;
   res.redirect("/urls");
 });
 
+
 app.post("/login", (req, res) => {
- const email = req.body.email 
- console.log("email", email)
+  const email = req.body.email;
+  console.log("email", email);
   
 });
+
+
 app.listen(PORT, () => {
   console.log(`Tinyapp listening on port ${PORT}!`);
 });
