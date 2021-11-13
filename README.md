@@ -15,12 +15,12 @@ cookie-session
 Final Product
 =============
 
-![https://github.com/Mahir45/Tinyapp/blob/main/docs/ulrs.png?raw=true](#)
+![Homepage](https://github.com/Mahir45/Tinyapp/blob/main/docs/ulrs.png?raw=true)
 
-![https://github.com/Mahir45/Tinyapp/blob/main/docs/urls_new.png?raw=true](#)
+![Create your new URL](https://github.com/Mahir45/Tinyapp/blob/main/docs/urls_new.png?raw=true)
 
 
-![https://github.com/Mahir45/Tinyapp/blob/main/docs/urls_register.png?raw=true](#)
+![Register](https://github.com/Mahir45/Tinyapp/blob/main/docs/urls_register.png?raw=true)
 
 
 Getting Started
