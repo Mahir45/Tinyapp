@@ -1,3 +1,10 @@
+ TINYAPP Project 
+ =============
+ 
+ Want to share links on Twitter, Facebook, Instagram  but your links are way too long? Don't let that stop you from sharing your new URLS
+
+TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs.
+ 
  Dependencies 
  =============
 Node.js
